@@ -14,7 +14,7 @@ class HTTPClient(object):
             response.raise_for_status()
             return response.json()
         except requests.exceptions.HTTPError as e:
-            print(response.json())
+            print(response.content)
             raise e
 
     def get(self, url, params={}):
@@ -22,7 +22,7 @@ class HTTPClient(object):
         return self.parse_response(response)
 
     def post(self, url, data):
-        response = requests.post(self.base_url + url, data, auth=self.auth, headers=self.headers)
+        response = requests.post(self.base_url + url, json=data, auth=self.auth, headers=self.headers)
         return self.parse_response(response)
 
     def put(self, url, data):
@@ -46,11 +46,11 @@ class RESTClient(HTTPClient):
         if 'list_route' in kwargs:
             url += kwargs.pop('list_route').rstrip('/') + '/'
         elif 'nested_route' in kwargs:
-            url += '%i/' % kwargs.pop('parent_pk')
+            url += '%s/' % kwargs.pop('parent_pk')
             url += kwargs.pop('nested_route').rstrip('/') + '/'
 
         if pk:
-            url += '%i/' % pk
+            url += '%s/' % pk
 
         if 'detail_route' in kwargs:
             url += kwargs.pop('detail_route').rstrip('/') + '/'
@@ -80,22 +80,41 @@ class RESTClient(HTTPClient):
 
 class ISIMIPClient(RESTClient):
 
-    def __init__(self, base_url='https://data.isimip.org/api/v1', auth=None, headers={}):
-        self.base_url = base_url
+    def __init__(self, data_url='https://data.isimip.org/api/v1', files_api_url='https://files.isimip.org/api/v1',
+                 auth=None, headers={}):
+        self.data_url = data_url
+        self.files_api_url = files_api_url
+
+        self.base_url = data_url
         self.auth = auth
         self.headers = {}
 
-    def download(self, url, path=None, params={}):
-        response = requests.get(url, params=params, auth=self.auth, headers=self.headers, stream=True)
+    def datasets(self, **kwargs):
+        return self.list('/datasets', **kwargs)
 
-        try:
-            response.raise_for_status()
-            file_path = Path(path) if path else Path.cwd()
-            file_name = urlparse(url).path.split('/')[-1]
-            with open(file_path / file_name, 'wb') as fd:
-                for chunk in response.iter_content(chunk_size=128):
-                    fd.write(chunk)
+    def dataset(self, pk, **kwargs):
+        return self.retrieve('/datasets', pk, **kwargs)
 
-        except requests.exceptions.HTTPError as e:
-            print(response.json())
-            raise e
+    def files(self, **kwargs):
+        return self.list('/files', **kwargs)
+
+    def file(self, pk, **kwargs):
+        return self.retrieve('/files', pk, **kwargs)
+
+    def download(self, url, path=None):
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+
+        file_path = Path(path) if path else Path.cwd()
+        file_name = urlparse(url).path.split('/')[-1]
+        with open(file_path / file_name, 'wb') as fd:
+            for chunk in response.iter_content(chunk_size=128):
+                fd.write(chunk)
+
+    def mask(self, path, country=None):
+        if country is not None:
+            response = requests.post(self.files_api_url, json={
+                'path': path,
+                'country': country
+            }, auth=self.auth, headers=self.headers)
+            return self.parse_response(response)

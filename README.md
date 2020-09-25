@@ -84,16 +84,17 @@ from isimip_client.client import ISIMIPClient
 client = ISIMIPClient()
 
 # search the ISIMIP repository using a search string
-response = client.list('/datasets', query='ISIMIP2b rcp60soc dis')
+response = client.datasets(query='gfdl-esm4 ssp370 pr')
+
+# search the ISIMIP repository for a specific subtree
+response = client.datasets(tree='ISIMIP3b/InputData/climate/atmosphere/global/daily/ssp370/gfdl-esm4/r1i1p1f1/w5e5/pr')
 
 # search the ISIMIP repository using specifiers
-response = client.list('/datasets', simulation_round='ISIMIP2b',
-                                    sector='water_global',
-                                    climate_forcing='gfdl-esm2m',
-                                    climate_scenario='rcp60',
-                                    soc_scenario='rcp60soc',
-                                    model='h08',
-                                    variable='dis')
+response = client.datasets(simulation_round='ISIMIP3b',
+                           product='InputData',
+                           climate_forcing='gfdl-esm4',
+                           climate_scenario='ssp370',
+                           climate_variable='pr')
 ```
 
 More examples can be found in the [notebooks directory](/notebooks).
