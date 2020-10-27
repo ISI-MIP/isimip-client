@@ -1,3 +1,4 @@
+import hashlib
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -101,15 +102,43 @@ class ISIMIPClient(RESTClient):
     def file(self, pk, **kwargs):
         return self.retrieve('/files', pk, **kwargs)
 
-    def download(self, url, path=None):
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
+    def download(self, url, path=None, validate=True):
+        headers = self.headers.copy()
 
-        file_path = Path(path) if path else Path.cwd()
-        file_name = urlparse(url).path.split('/')[-1]
-        with open(file_path / file_name, 'wb') as fd:
-            for chunk in response.iter_content(chunk_size=128):
-                fd.write(chunk)
+        file_name = Path(urlparse(url).path.split('/')[-1])
+        file_path = (Path(path) if path else Path.cwd()) / file_name
+        file_path.parent.mkdir(exist_ok=True)
+        if file_path.exists():
+            # resume download
+            headers.update({'Range': f'bytes={file_path.stat().st_size}-'})
+
+        response = requests.get(url, stream=True, headers=headers)
+        if response.status_code == 416:
+            # download is complete
+            pass
+        else:
+            response.raise_for_status()
+
+            with open(file_path, 'ab') as fd:
+                for chunk in response.iter_content(chunk_size=65*1024):
+                    fd.write(chunk)
+
+        if validate:
+            checksum_url = url.rsplit('/', 1)[0] + '/' + file_name.with_suffix('.sha512').as_posix()
+            response = requests.get(checksum_url, headers=self.headers)
+            response.raise_for_status()
+            remote_checksum, remote_path = response.content.decode().strip().split()
+
+            # compute file checksum
+            m = hashlib.sha512()
+            with open(file_path, 'rb') as fp:
+                # read and update in blocks of 64K
+                for block in iter(lambda: fp.read(65536), b''):
+                    m.update(block)
+            checksum = m.hexdigest()
+
+            assert remote_path.endswith(file_name.as_posix())
+            assert remote_checksum == checksum, f'Checksum {checksum} != {remote_checksum}'
 
     def mask(self, path, country=None):
         if country is not None:

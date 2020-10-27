@@ -13,5 +13,6 @@ __pycache__/
 /.pytest_cache
 /htmlcov
 /env
+/notebooks/downloads
 
 .ipynb_checkpoints
