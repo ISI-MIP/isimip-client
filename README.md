@@ -97,6 +97,12 @@ response = client.datasets(simulation_round='ISIMIP3b',
                            climate_variable='pr')
 ```
 
+In order to use the `dev` version of the repository use:
+
+```python
+client = ISIMIPClient(data_url='https://dev.isimip.org/api/v1', auth=(USER, PASS))
+```
+
 More examples can be found in the [notebooks directory](/notebooks).
 
 
