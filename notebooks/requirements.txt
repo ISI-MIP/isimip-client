@@ -1,0 +1,4 @@
+# requirements for all notebooks
+jupyterlab
+netCDF4
+matplotlib
