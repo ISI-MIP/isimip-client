@@ -112,7 +112,7 @@ Jupyter notebooks
 I you want to run the included jupyter notebooks, you can install the additional packages using:
 
 ```
-pip install jupyter jupyterlab
+pip install -r notebooks/requirements.txt
 ```
 
 Then Jupyter lab can be started using:
