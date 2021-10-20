@@ -140,10 +140,20 @@ class ISIMIPClient(RESTClient):
             assert remote_path.endswith(file_name.as_posix())
             assert remote_checksum == checksum, f'Checksum {checksum} != {remote_checksum}'
 
-    def mask(self, path, country=None):
+    def mask(self, paths, country=None, bbox=None, landonly=None):
+        payload = {}
+
+        if isinstance(paths, list):
+            payload['paths'] = paths
+        else:
+            payload['paths'] = [paths]
+
         if country is not None:
-            response = requests.post(self.files_api_url, json={
-                'path': path,
-                'country': country
-            }, auth=self.auth, headers=self.headers)
-            return self.parse_response(response)
+            payload['country'] = country
+        elif bbox is not None:
+            payload['bbox'] = bbox
+        elif landonly is not None:
+            payload['landonly'] = landonly
+
+        response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
+        return self.parse_response(response)
