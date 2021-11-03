@@ -149,11 +149,27 @@ class ISIMIPClient(RESTClient):
             payload['paths'] = [paths]
 
         if country is not None:
+            payload['task'] = 'mask_country'
             payload['country'] = country
         elif bbox is not None:
+            payload['task'] = 'mask_bbox'
             payload['bbox'] = bbox
         elif landonly is not None:
-            payload['landonly'] = landonly
+            payload['task'] = 'mask_landonly'
+
+        response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
+        return self.parse_response(response)
+
+    def cutout(self, paths, bbox):
+        payload = {
+            'task': 'cutout_bbox',
+            'bbox': bbox
+        }
+
+        if isinstance(paths, list):
+            payload['paths'] = paths
+        else:
+            payload['paths'] = [paths]
 
         response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
         return self.parse_response(response)
