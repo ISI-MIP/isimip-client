@@ -1,5 +1,6 @@
 import hashlib
 import zipfile
+import time
 
 from pathlib import Path
 from urllib.parse import urlparse
@@ -146,7 +147,7 @@ class ISIMIPClient(RESTClient):
             with zipfile.ZipFile(file_path, 'r') as zip_ref:
                 zip_ref.extractall(path)
 
-    def mask(self, paths, country=None, bbox=None, landonly=None):
+    def mask(self, paths, country=None, bbox=None, landonly=None, poll=None):
         payload = {}
 
         if isinstance(paths, list):
@@ -164,9 +165,14 @@ class ISIMIPClient(RESTClient):
             payload['task'] = 'mask_landonly'
 
         response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
-        return self.parse_response(response)
+        job = self.parse_response(response)
+        if poll and job['status'] in ['queued', 'started']:
+            time.sleep(poll)
+            return self.mask(paths, country, bbox, landonly, poll)
+        else:
+            return job
 
-    def cutout(self, paths, bbox):
+    def cutout(self, paths, bbox, poll=None):
         payload = {
             'task': 'cutout_bbox',
             'bbox': bbox
@@ -178,9 +184,14 @@ class ISIMIPClient(RESTClient):
             payload['paths'] = [paths]
 
         response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
-        return self.parse_response(response)
+        job = self.parse_response(response)
+        if poll and job['status'] in ['queued', 'started']:
+            time.sleep(poll)
+            return self.cutout(paths, bbox, poll)
+        else:
+            return job
 
-    def select(self, paths, country=None, bbox=None, point=None):
+    def select(self, paths, country=None, bbox=None, point=None, poll=None):
         payload = {}
 
         if isinstance(paths, list):
@@ -199,4 +210,9 @@ class ISIMIPClient(RESTClient):
             payload['point'] = point
 
         response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
-        return self.parse_response(response)
+        job = self.parse_response(response)
+        if poll and job['status'] in ['queued', 'started']:
+            time.sleep(poll)
+            return self.select(paths, country, bbox, point, poll)
+        else:
+            return job
