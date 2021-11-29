@@ -179,3 +179,24 @@ class ISIMIPClient(RESTClient):
 
         response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
         return self.parse_response(response)
+
+    def select(self, paths, country=None, bbox=None, point=None):
+        payload = {}
+
+        if isinstance(paths, list):
+            payload['paths'] = paths
+        else:
+            payload['paths'] = [paths]
+
+        if country is not None:
+            payload['task'] = 'select_country'
+            payload['country'] = country
+        elif bbox is not None:
+            payload['task'] = 'select_bbox'
+            payload['bbox'] = bbox
+        elif point is not None:
+            payload['task'] = 'select_point'
+            payload['point'] = point
+
+        response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
+        return self.parse_response(response)
