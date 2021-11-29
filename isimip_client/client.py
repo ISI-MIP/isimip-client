@@ -1,4 +1,6 @@
 import hashlib
+import zipfile
+
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -102,7 +104,7 @@ class ISIMIPClient(RESTClient):
     def file(self, pk, **kwargs):
         return self.retrieve('/files', pk, **kwargs)
 
-    def download(self, url, path=None, validate=True):
+    def download(self, url, path=None, validate=True, extract=True):
         headers = self.headers.copy()
 
         file_name = Path(urlparse(url).path.split('/')[-1])
@@ -139,6 +141,10 @@ class ISIMIPClient(RESTClient):
 
             assert remote_path.endswith(file_name.as_posix())
             assert remote_checksum == checksum, f'Checksum {checksum} != {remote_checksum}'
+
+        if file_path.suffix == '.zip' and extract:
+            with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                zip_ref.extractall(path)
 
     def mask(self, paths, country=None, bbox=None, landonly=None):
         payload = {}
