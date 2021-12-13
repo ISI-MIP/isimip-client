@@ -168,6 +168,7 @@ class ISIMIPClient(RESTClient):
         job = self.parse_response(response)
         if poll and job['status'] in ['queued', 'started']:
             time.sleep(poll)
+            print(job['meta'])
             return self.mask(paths, country, bbox, landonly, poll)
         else:
             return job
@@ -187,6 +188,7 @@ class ISIMIPClient(RESTClient):
         job = self.parse_response(response)
         if poll and job['status'] in ['queued', 'started']:
             time.sleep(poll)
+            print(job['meta'])
             return self.cutout(paths, bbox, poll)
         else:
             return job
@@ -213,6 +215,7 @@ class ISIMIPClient(RESTClient):
         job = self.parse_response(response)
         if poll and job['status'] in ['queued', 'started']:
             time.sleep(poll)
+            print(job['meta'])
             return self.select(paths, country, bbox, point, poll)
         else:
             return job
