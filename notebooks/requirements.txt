@@ -2,3 +2,5 @@
 jupyterlab
 netCDF4
 matplotlib
+pandas
+
