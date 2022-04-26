@@ -127,10 +127,11 @@ class ISIMIPClient(RESTClient):
                     fd.write(chunk)
 
         if validate:
-            checksum_url = url.rsplit('/', 1)[0] + '/' + file_name.with_suffix('.sha512').as_posix()
-            response = requests.get(checksum_url, headers=self.headers)
+            json_url = url.rsplit('/', 1)[0] + '/' + file_name.with_suffix('.json').as_posix()
+            response = requests.get(json_url, headers=self.headers)
             response.raise_for_status()
-            remote_checksum, remote_path = response.content.decode().strip().split()
+            json_data = response.json()
+            remote_checksum, remote_path = json_data['checksum'], json_data['path']
 
             # compute file checksum
             m = hashlib.sha512()
