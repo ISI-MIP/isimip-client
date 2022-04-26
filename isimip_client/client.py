@@ -110,7 +110,7 @@ class ISIMIPClient(RESTClient):
 
         file_name = Path(urlparse(url).path.split('/')[-1])
         file_path = (Path(path) if path else Path.cwd()) / file_name
-        file_path.parent.mkdir(exist_ok=True)
+        file_path.parent.mkdir(exist_ok=True, parents=True)
         if file_path.exists():
             # resume download
             headers.update({'Range': f'bytes={file_path.stat().st_size}-'})
