@@ -167,10 +167,8 @@ class ISIMIPClient(RESTClient):
 
         response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
         job = self.parse_response(response)
-        if poll and job['status'] in ['queued', 'started']:
-            time.sleep(poll)
-            print(job['meta'])
-            return self.mask(paths, country, bbox, landonly, poll)
+        if poll:
+            return self.poll(job, self.mask, [paths, country, bbox, landonly, poll], poll)
         else:
             return job
 
@@ -187,10 +185,8 @@ class ISIMIPClient(RESTClient):
 
         response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
         job = self.parse_response(response)
-        if poll and job['status'] in ['queued', 'started']:
-            time.sleep(poll)
-            print(job['meta'])
-            return self.cutout(paths, bbox, poll)
+        if poll:
+            return self.poll(job, self.cutout, [paths, bbox, poll], poll)
         else:
             return job
 
@@ -214,9 +210,15 @@ class ISIMIPClient(RESTClient):
 
         response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
         job = self.parse_response(response)
-        if poll and job['status'] in ['queued', 'started']:
-            time.sleep(poll)
-            print(job['meta'])
-            return self.select(paths, country, bbox, point, poll)
+        if poll:
+            return self.poll(job, self.select, [paths, country, bbox, point, poll], poll)
+        else:
+            return job
+
+    def poll(self, job, method, args, poll_sleep):
+        print('job', job['id'], job['status'], job['meta'] if job['meta'] else '')
+        if job['status'] in ['queued', 'started']:
+            time.sleep(poll_sleep)
+            return method(*args)
         else:
             return job
