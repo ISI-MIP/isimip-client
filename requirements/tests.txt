@@ -1,4 +1,0 @@
--r common.txt
-
-pytest~=5.2
-pytest-cov~=2.8

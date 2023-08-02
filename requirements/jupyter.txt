@@ -1,4 +1,0 @@
--r common.txt
-
-jupyter~=1.0.0
-jupyterlab~=2.2.8

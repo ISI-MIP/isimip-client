@@ -1,6 +1,10 @@
 isimip-client
 =============
 
+[![Latest release](https://shields.io/github/v/release/ISI-MIP/isimip-client)](https://pypi.python.org/pypi/isimip-client/)
+[![Python Version](https://img.shields.io/badge/python->=3.8-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green)](https://github.com/ISI-MIP/isimip-qc/blob/master/LICENSE)
+
 A *thin* client library to use the API of the [ISIMIP repository](https://data.isimip.org) using Python.
 
 Setup
@@ -8,7 +12,7 @@ Setup
 
 The library is written in Python (> 3.6) uses only dependencies, which can be installed without administrator priviledges. The installation of Python (and its developing packages), however differs from operating system to operating system. Optional Git is needed if the application is installed directly from GitHub. The installation of Python 3 and Git for different plattforms is documented [here](https://github.com/ISI-MIP/isimip-utils/blob/master/docs/prerequisites.md).
 
-The library can be installed via pip. Usually you want to create a [virtual environment](https://docs.python.org/3/library/venv.html) first, but this is optional.
+The library can be installed via pip. Usually you want to create a [virtual environment](https://docs.python.org/3/library/venv.html) first, but this is optional:
 
 ```bash
 # setup venv on Linux/macOS/Windows WSL
@@ -18,14 +22,13 @@ source env/bin/activate
 # setup venv on Windows cmd
 python -m venv env
 call env\Scripts\activate.bat
-
-# install from GitHub
-pip install git+https://github.com/ISI-MIP/isimip-client
-
-# update from Github
-pip install -I git+https://github.com/ISI-MIP/isimip-client
 ```
 
+The library can conveniently installed using `pip`:
+
+```
+pip install isimip-client
+```
 
 Usage
 -----
@@ -65,7 +68,7 @@ Jupyter notebooks
 I you want to run the included jupyter notebooks, you can install the additional packages using:
 
 ```
-pip install -r notebooks/requirements.txt
+pip install isimip-client[jupyter]
 ```
 
 Then Jupyter lab can be started using:
@@ -73,3 +76,5 @@ Then Jupyter lab can be started using:
 ```bash
 jupyter lab
 ```
+
+The example notebooks are in the `notebooks` directory.

@@ -1,0 +1,39 @@
+[project]
+name = "isimip-client"
+authors = [
+    { name = "Jochen Klar", email = "jochen.klar@pik-potsdam.de" },
+]
+maintainers = [
+    { name = "Jochen Klar", email = "jochen.klar@pik-potsdam.de" },
+]
+description = "A thin client library to use the API of the ISIMIP repository using Python."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+classifiers = [
+    'Operating System :: OS Independent',
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+]
+dependencies = [
+    "requests>=2"
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+jupyter = [
+    "jupyter",
+    "jupyterlab",
+]
+
+[project.urls]
+Repository = "https://github.com/ISI-MIP/isimip-client"
+
+[tool.setuptools]
+packages = ["isimip_client"]
+
+[tool.setuptools.dynamic]
+version = { attr = "isimip_client.__version__" }
