@@ -27,6 +27,9 @@ dynamic = ["version"]
 jupyter = [
     "jupyter",
     "jupyterlab",
+    "matplotlib",
+    "netCDF4",
+    "pandas",
 ]
 
 [project.urls]
