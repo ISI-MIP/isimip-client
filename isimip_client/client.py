@@ -165,12 +165,7 @@ class ISIMIPClient(RESTClient):
         elif landonly is not None:
             payload['task'] = 'mask_landonly'
 
-        response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
-        job = self.parse_response(response)
-        if poll:
-            return self.poll(job, self.mask, [paths, country, bbox, landonly, poll], poll)
-        else:
-            return job
+        return self.post_job(payload, poll)
 
     def cutout(self, paths, bbox, poll=None):
         payload = {
@@ -183,12 +178,7 @@ class ISIMIPClient(RESTClient):
         else:
             payload['paths'] = [paths]
 
-        response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
-        job = self.parse_response(response)
-        if poll:
-            return self.poll(job, self.cutout, [paths, bbox, poll], poll)
-        else:
-            return job
+        return self.post_job(payload, poll)
 
     def select(self, paths, country=None, bbox=None, point=None, poll=None):
         payload = {}
@@ -208,17 +198,17 @@ class ISIMIPClient(RESTClient):
             payload['task'] = 'select_point'
             payload['point'] = point
 
-        response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
-        job = self.parse_response(response)
-        if poll:
-            return self.poll(job, self.select, [paths, country, bbox, point, poll], poll)
-        else:
-            return job
+        return self.post_job(payload, poll)
 
-    def poll(self, job, method, args, poll_sleep):
-        print('job', job['id'], job['status'], job['meta'] if job['meta'] else '')
-        if job['status'] in ['queued', 'started']:
-            time.sleep(poll_sleep)
-            return method(*args)
-        else:
-            return job
+    def post_job(self, payload, poll=None):
+        while True:
+            response = requests.post(self.files_api_url, json=payload, auth=self.auth, headers=self.headers)
+            job = self.parse_response(response)
+            if poll:
+                print('job', job['id'], job['status'], job['meta'] if job['meta'] else '')
+                if job['status'] in ['queued', 'started']:
+                    time.sleep(poll)
+                else:
+                    return job
+            else:
+                return job
