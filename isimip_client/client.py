@@ -1,14 +1,13 @@
 import hashlib
-import zipfile
 import time
-
+import zipfile
 from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
 
 
-class HTTPClient(object):
+class HTTPClient:
 
     def __init__(self, base_url, auth, headers):
         self.base_url, self.auth, self.headers = base_url, auth, headers
