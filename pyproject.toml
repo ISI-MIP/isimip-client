@@ -70,7 +70,9 @@ ignore = [
 ]
 
 [tool.ruff.isort]
-known-first-party = ["rdmo"]
+known-first-party = [
+    "isimip_client"
+]
 section-order = [
     "future",
     "standard-library",
