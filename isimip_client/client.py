@@ -21,8 +21,8 @@ class HTTPClient:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.HTTPError as e:
-            logger.error(response.content)
-            raise e
+            logger.error(f'{e} response={response.json()}')
+            return None
 
     def get(self, url, params={}):
         response = requests.get(self.base_url + url, params=params, auth=self.auth, headers=self.headers)
@@ -116,30 +116,36 @@ class FilesApiMixin:
             files = {'data': json.dumps(data)}
             for upload in uploads:
                 upload_path = Path(upload).expanduser()
-                files[upload_path.name] = upload_path.read_bytes()
+                try:
+                    files[upload_path.name] = upload_path.read_bytes()
+                except FileNotFoundError as e:
+                    logger.error(e)
+                    return None
+
             response = requests.post(self.files_api_url, files=files, auth=self.auth, headers=self.headers)
 
-
         job = self.parse_response(response)
-        self.log_job(job)
+        if job:
+            self.log_job(job)
 
-        if poll and job['status'] in ['queued', 'started']:
-            time.sleep(poll)
-            return self.get_job(job['job_url'], poll=poll)
-        else:
-            return job
+            if poll and job['status'] in ['queued', 'started']:
+                time.sleep(poll)
+                return self.get_job(job['job_url'], poll=poll)
+            else:
+                return job
 
     def get_job(self, job_url, poll=None):
         response = requests.get(job_url, auth=self.auth, headers=self.headers)
 
         job = self.parse_response(response)
-        self.log_job(job)
+        if job:
+            self.log_job(job)
 
-        if poll and job['status'] in ['queued', 'started']:
-            time.sleep(poll)
-            return self.get_job(job['job_url'], poll=poll)
-        else:
-            return job
+            if poll and job['status'] in ['queued', 'started']:
+                time.sleep(poll)
+                return self.get_job(job['job_url'], poll=poll)
+            else:
+                return job
 
     def log_job(self, job):
         if job['status'] == 'finished':
@@ -217,50 +223,57 @@ class FilesApiV2Mixin:
             'operations': operations
         }, uploads=uploads, poll=poll)
 
-    def select_bbox(self, paths, bbox, poll=None):
+    def select_bbox(self, paths, west, east, south, north, mean=False, csv=False, poll=None):
         self.check('v2')
         return self.post_job({
             'paths': paths,
             'operations': [
                 {
                     'operation': 'select_bbox',
-                    'bbox': bbox
+                    'bbox': [west, east, south, north],
+                    'compute_mean': mean,
+                    'output_csv': csv
                 }
             ]
         }, poll=poll)
 
-    def select_point(self, paths, point, poll=None):
+    def select_point(self, paths, lat, lon, csv=False, poll=None):
         self.check('v2')
         return self.post_job({
             'paths': paths,
             'operations': [
                 {
                     'operation': 'select_point',
-                    'point': point
+                    'point': [lat, lon],
+                    'output_csv': csv
                 }
             ]
         }, poll=poll)
 
-    def mask_bbox(self, paths, bbox, poll=None):
+    def mask_bbox(self, paths, west, east, south, north, mean=False, csv=False, poll=None):
         self.check('v2')
         return self.post_job({
             'paths': paths,
             'operations': [
                 {
                     'operation': 'mask_bbox',
-                    'bbox': bbox
+                    'bbox': [west, east, south, north],
+                    'compute_mean': mean,
+                    'output_csv': csv
                 }
             ]
         }, poll=poll)
 
-    def mask_country(self, paths, country, poll=None):
+    def mask_country(self, paths, country, mean=False, csv=False, poll=None):
         self.check('v2')
         return self.post_job({
             'paths': paths,
             'operations': [
                 {
                     'operation': 'mask_country',
-                    'country': country
+                    'country': country,
+                    'compute_mean': mean,
+                    'output_csv': csv
                 }
             ]
         }, poll=poll)
@@ -276,7 +289,7 @@ class FilesApiV2Mixin:
             ]
         }, poll=poll)
 
-    def mask_mask(self, paths, mask, var, compute_mean=False, output_csv=False, poll=None):
+    def mask_mask(self, paths, mask, var, mean=False, csv=False, poll=None):
         self.check('v2')
         mask = Path(mask)
         return self.post_job({
@@ -285,14 +298,14 @@ class FilesApiV2Mixin:
                 {
                     'operation': 'mask_mask',
                     'mask': mask.name,
-                    'compute_mean': compute_mean,
-                    'output_csv': output_csv,
+                    'compute_mean': mean,
+                    'output_csv': csv,
                     'var': var
                 }
             ]
         }, uploads=[mask], poll=poll)
 
-    def mask_shape(self, paths, shape, layer, compute_mean=False, output_csv=False, poll=None):
+    def mask_shape(self, paths, shape, layer, mean=False, csv=False, poll=None):
         self.check('v2')
         shape = Path(shape)
         mask = shape.with_suffix('.nc')
@@ -308,33 +321,36 @@ class FilesApiV2Mixin:
                 {
                     'operation': 'mask_mask',
                     'mask': mask.name,
-                    'compute_mean': compute_mean,
-                    'output_csv': output_csv,
+                    'compute_mean': mean,
+                    'output_csv': csv,
                     'var': var
                 }
             ]
         }, uploads=[shape], poll=poll)
 
-    def cutout_bbox(self, paths, bbox, poll=None):
+    def cutout_bbox(self, paths, west, east, south, north, mean=False, csv=False, poll=None):
         self.check('v2')
         return self.post_job({
             'paths': paths,
             'operations': [
                 {
                     'operation': 'cutout_bbox',
-                    'bbox': bbox
+                    'bbox': [west, east, south, north],
+                    'compute_mean': mean,
+                    'output_csv': csv
                 }
             ]
         }, poll=poll)
 
-    def cutout_point(self, paths, point, poll=None):
+    def cutout_point(self, paths, lat, lon, csv=False, poll=None):
         self.check('v2')
         return self.post_job({
             'paths': paths,
             'operations': [
                 {
                     'operation': 'cutout_point',
-                    'point': point
+                    'point': [lat, lon],
+                    'output_csv': csv
                 }
             ]
         }, poll=poll)
@@ -346,7 +362,7 @@ class DownloadMixin:
         headers = self.headers.copy()
 
         file_name = Path(urlparse(url).path.split('/')[-1])
-        file_path = (Path(path) if path else Path.cwd()) / file_name
+        file_path = (Path(path).expanduser() if path else Path.cwd()) / file_name
         file_path.parent.mkdir(exist_ok=True, parents=True)
         if file_path.exists():
             # resume download

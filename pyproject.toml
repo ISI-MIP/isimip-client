@@ -19,7 +19,9 @@ classifiers = [
     'Programming Language :: Python :: 3.11',
 ]
 dependencies = [
-    "requests>=2"
+    "click>=8",
+    "requests>=2",
+    "rich>=13"
 ]
 dynamic = ["version"]
 
@@ -40,6 +42,9 @@ dev = [
 
 [project.urls]
 Repository = "https://github.com/ISI-MIP/isimip-client"
+
+[project.scripts]
+isimip-client = "isimip_client.cli:main"
 
 [tool.setuptools]
 packages = ["isimip_client"]

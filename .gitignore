@@ -14,7 +14,7 @@ __pycache__/
 /htmlcov
 /env
 
-/test.py
+/test*
 /downloads
 /notebooks/env
 /notebooks/downloads
