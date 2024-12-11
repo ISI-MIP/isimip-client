@@ -32,6 +32,7 @@ jupyter = [
     "matplotlib",
     "netCDF4",
     "pandas",
+    "xarray"
 ]
 dev = [
     "build",
