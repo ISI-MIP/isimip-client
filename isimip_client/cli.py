@@ -2,31 +2,18 @@ import logging
 
 import click
 from rich import print_json
-from rich.console import Console
 from rich.logging import RichHandler
-from rich.pretty import pretty_repr
-from rich.table import Table
-from rich.text import Text
 
 from .client import ISIMIPClient
-
-logging.basicConfig(level='INFO', format='%(message)s', handlers=[RichHandler()])
-
-
-class SearchArgumentType(click.ParamType):
-    name = "search"
-
-    def convert(self, value, param, ctx):
-        try:
-            search_key, search_value = value.split('=')
-            return (search_key, search_value)
-        except ValueError:
-            self.fail(f'{param} needs to be of the form key=value')
+from .utils import SearchArgumentType, print_details_table, print_results_table
 
 
 @click.group()
+@click.option('--log-level', default='WARNING')
 @click.pass_context
-def main(ctx):
+def main(ctx, log_level):
+    logging.basicConfig(level=log_level.upper(), format='%(message)s', handlers=[RichHandler()])
+
     ctx.ensure_object(dict)
     ctx.obj['client'] = ISIMIPClient(
         data_url='https://data.isimip.org/api/v1',
@@ -45,54 +32,19 @@ def print_response(ctx, response, **kwargs):
         elif ctx.obj.get('json'):
             print_json(data=response)
         else:
-            table = Table()
-
-            if 'results' in response:
-                table.add_column('id', style='green')
-                table.add_column('path', style='cyan')
-                table.add_column('version')
-                for result in response['results']:
-                    row = [result[key] for key in ['id', 'path', 'version']]
-                    table.add_row(*row)
+            if isinstance(response, list):
+                print_results_table(response)
+            elif 'results' in response:
+                print_results_table(response['results'])
             else:
-                table.add_column('key')
-                table.add_column('value')
-                for key in [
-                    'id',
-                    'path',
-                    'version',
-                    'size',
-                    'checksum',
-                    'checksum_type',
-                    'specifiers',
-                    'resources',
-                    'caveats',
-                    'metadata_url',
-                    'file_url',
-                    'json_url'
-                ]:
-                    value = response.get(key)
-                    if value is None:
-                        continue
-                    elif isinstance(value, (dict, list)):
-                        table.add_row(key, pretty_repr(value))
-                    else:
-                        text = Text(str(value))
-                        if key == 'id':
-                            text.stylize('green')
-                        elif key == 'path':
-                            text.stylize('cyan')
-                        table.add_row(key, text)
-
-            console = Console()
-            console.print(table)
+                print_details_table(response)
 
 
 @main.command()
 @click.pass_context
 @click.argument('search', nargs=-1, type=SearchArgumentType())
 @click.option('--page', default=1)
-@click.option('--page-size', default=10)
+# @click.option('--page-size', default=10)
 @click.option('--json', is_flag=True)
 def datasets(ctx, search, json, **kwargs):
     ctx.obj['json'] = json

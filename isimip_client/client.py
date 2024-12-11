@@ -10,46 +10,61 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-
 class HTTPClient:
 
-    def __init__(self, base_url, auth, headers, params):
-        self.base_url, self.auth, self.headers, self.params = base_url, auth, headers, params
+    def __init__(self, auth, headers):
+        self.auth, self.headers = auth, headers
 
     def parse_response(self, response):
         try:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.HTTPError as e:
-            logger.error(f'{e} response={response.json()}')
+            try:
+                logger.error(f'{e} response={response.json()}')
+            except json.decoder.JSONDecodeError as e:
+                logger.error(f'{e} content={response.content}')
             return None
 
     def get(self, url, params={}):
-        response = requests.get(self.base_url + url, params=dict(self.params, **params),
-                                auth=self.auth, headers=self.headers)
+        logger.info(f'GET url={url} params={params}')
+        response = requests.get(url, params=params, auth=self.auth, headers=self.headers)
         return self.parse_response(response)
 
     def post(self, url, data):
-        response = requests.post(self.base_url + url, json=data, auth=self.auth, headers=self.headers)
+        logger.info(f'POST url={url} data={data}')
+        response = requests.post(url, json=data, auth=self.auth, headers=self.headers)
         return self.parse_response(response)
 
     def put(self, url, data):
-        response = requests.put(self.base_url + url, data, auth=self.auth, headers=self.headers)
+        logger.info(f'PUT url={url} data={data}')
+        response = requests.put(url, data, auth=self.auth, headers=self.headers)
         return self.parse_response(response)
 
     def patch(self, url, data):
-        response = requests.patch(self.base_url + url, json=data, auth=self.auth, headers=self.headers)
+        logger.info(f'PATCH url={url} data={data}')
+        response = requests.patch(url, json=data, auth=self.auth, headers=self.headers)
         return self.parse_response(response)
 
     def delete(self, url):
-        response = requests.delete(self.base_url + url, auth=self.auth, headers=self.headers)
+        logger.info(f'DELETE url={url}')
+        response = requests.delete(url, auth=self.auth, headers=self.headers)
         return self.parse_response(response)
 
 
 class RESTClient(HTTPClient):
 
-    def _build_url(self, resource_url, kwargs, pk=None):
-        url = resource_url.rstrip('/') + '/'
+    max_results = 1000
+    page_size = 100
+
+    def __init__(self, base_url, params, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.base_url = base_url
+        self.params = {'page_size': self.page_size}
+        self.params.update(params)
+
+    def build_url(self, resource_url, kwargs, pk=None):
+        url = self.base_url.rstrip('/') + resource_url.rstrip('/') + '/'
 
         if 'list_route' in kwargs:
             url += kwargs.pop('list_route').rstrip('/') + '/'
@@ -66,23 +81,37 @@ class RESTClient(HTTPClient):
         return url
 
     def list(self, resource_url, **kwargs):
-        url = self._build_url(resource_url, kwargs)
-        return self.get(url, params=kwargs)
+        paginate = kwargs.pop('paginate', False)
+        url = self.build_url(resource_url, kwargs)
+        response = self.get(url, params=dict(self.params, **kwargs))
+
+        if paginate:
+            return response
+        else:
+            results = response['results']
+            while len(results) < self.max_results:
+                next_url = response.get('next')
+                if next_url:
+                    response = self.get(next_url)
+                    results += response['results']
+                else:
+                    break
+            return results
 
     def retrieve(self, resource_url, pk, **kwargs):
-        url = self._build_url(resource_url, kwargs, pk)
+        url = self.build_url(resource_url, kwargs, pk)
         return self.get(url)
 
     def create(self, resource_url, data, **kwargs):
-        url = self._build_url(resource_url, kwargs)
+        url = self.build_url(resource_url, kwargs)
         return self.post(url, data)
 
     def update(self, resource_url, pk, data, **kwargs):
-        url = self._build_url(resource_url, kwargs, pk)
+        url = self.build_url(resource_url, kwargs, pk)
         return self.put(url, data)
 
     def destroy(self, resource_url, pk, **kwargs):
-        url = self._build_url(resource_url, kwargs, pk)
+        url = self.build_url(resource_url, kwargs, pk)
         return self.delete(url, pk)
 
 
@@ -153,6 +182,7 @@ class FilesApiMixin:
             logger.info('job {id} {status} meta={meta} file_url={file_url}'.format(**job))
         else:
             logger.info('job {id} {status} meta={meta}'.format(**job))
+
 
 class FilesApiV1Mixin:
 
@@ -412,12 +442,10 @@ class ISIMIPClient(DataApiMixin, FilesApiMixin, FilesApiV1Mixin, FilesApiV2Mixin
         data_url='https://data.isimip.org/api/v1',
         files_api_url='https://files.isimip.org/api/v2',
         files_api_version='v2',
-        page_size=100,
+        params={},
         auth=None,
         headers={}
     ):
-        super().__init__(data_url, auth, headers, {
-            'page_size': page_size
-        })
+        super().__init__(data_url, params, auth, headers)
         self.files_api_url = files_api_url
         self.files_api_version = files_api_version
