@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 class HTTPClient:
 
-    def __init__(self, base_url, auth, headers):
-        self.base_url, self.auth, self.headers = base_url, auth, headers
+    def __init__(self, base_url, auth, headers, params):
+        self.base_url, self.auth, self.headers, self.params = base_url, auth, headers, params
 
     def parse_response(self, response):
         try:
@@ -25,7 +25,8 @@ class HTTPClient:
             return None
 
     def get(self, url, params={}):
-        response = requests.get(self.base_url + url, params=params, auth=self.auth, headers=self.headers)
+        response = requests.get(self.base_url + url, params=dict(self.params, **params),
+                                auth=self.auth, headers=self.headers)
         return self.parse_response(response)
 
     def post(self, url, data):
@@ -358,7 +359,7 @@ class FilesApiV2Mixin:
 
 class DownloadMixin:
 
-    def download(self, url, path=None, validate=False, extract=True):
+    def download(self, url, path=None, validate=False, extract=False):
         headers = self.headers.copy()
 
         file_name = Path(urlparse(url).path.split('/')[-1])
@@ -367,6 +368,8 @@ class DownloadMixin:
         if file_path.exists():
             # resume download
             headers.update({'Range': f'bytes={file_path.stat().st_size}-'})
+
+        logger.info(f'download url={url} to path={path}')
 
         response = requests.get(url, stream=True, headers=headers)
         if response.status_code == 416:
@@ -404,12 +407,17 @@ class DownloadMixin:
 
 class ISIMIPClient(DataApiMixin, FilesApiMixin, FilesApiV1Mixin, FilesApiV2Mixin, DownloadMixin, RESTClient):
 
-    def __init__(self, data_url='https://data.isimip.org/api/v1', files_api_url='https://files.isimip.org/api/v1',
-                 files_api_version='v1', auth=None, headers={}):
-        self.data_url = data_url
+    def __init__(
+        self,
+        data_url='https://data.isimip.org/api/v1',
+        files_api_url='https://files.isimip.org/api/v2',
+        files_api_version='v2',
+        page_size=100,
+        auth=None,
+        headers={}
+    ):
+        super().__init__(data_url, auth, headers, {
+            'page_size': page_size
+        })
         self.files_api_url = files_api_url
         self.files_api_version = files_api_version
-
-        self.base_url = data_url
-        self.auth = auth
-        self.headers = {}
