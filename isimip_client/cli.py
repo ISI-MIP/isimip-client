@@ -65,13 +65,16 @@ def print_response(ctx, response, **kwargs):
                     'checksum',
                     'checksum_type',
                     'specifiers',
-                    'url',
+                    'resources',
+                    'caveats',
                     'metadata_url',
                     'file_url',
                     'json_url'
                 ]:
-                    value = response.get(key, '')
-                    if isinstance(value, dict):
+                    value = response.get(key)
+                    if value is None:
+                        continue
+                    elif isinstance(value, (dict, list)):
                         table.add_row(key, pretty_repr(value))
                     else:
                         text = Text(str(value))
