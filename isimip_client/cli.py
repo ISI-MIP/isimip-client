@@ -43,8 +43,6 @@ def print_response(ctx, response, **kwargs):
 @main.command()
 @click.pass_context
 @click.argument('search', nargs=-1, type=SearchArgumentType())
-@click.option('--page', default=1)
-# @click.option('--page-size', default=10)
 @click.option('--json', is_flag=True)
 def datasets(ctx, search, json, **kwargs):
     ctx.obj['json'] = json
@@ -53,7 +51,7 @@ def datasets(ctx, search, json, **kwargs):
 
 @main.command()
 @click.pass_context
-@click.argument('id')
+@click.argument('id', type=click.UUID)
 @click.option('--json', is_flag=True)
 def dataset(ctx, id, json):
     ctx.obj['json'] = json
@@ -63,8 +61,6 @@ def dataset(ctx, id, json):
 @main.command()
 @click.pass_context
 @click.argument('search', nargs=-1, type=SearchArgumentType())
-@click.option('--page', default=1)
-@click.option('--page-size', default=10)
 @click.option('--json', is_flag=True)
 def files(ctx, search, json, **kwargs):
     ctx.obj['json'] = json
@@ -73,7 +69,7 @@ def files(ctx, search, json, **kwargs):
 
 @main.command()
 @click.pass_context
-@click.argument('id')
+@click.argument('id', type=click.UUID)
 @click.option('--json', is_flag=True)
 def file(ctx, id, json):
     ctx.obj['json'] = json
