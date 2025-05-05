@@ -1,4 +1,5 @@
 import logging
+import os
 
 import click
 from rich import print_json
@@ -16,9 +17,9 @@ def main(ctx, log_level):
 
     ctx.ensure_object(dict)
     ctx.obj['client'] = ISIMIPClient(
-        data_url='https://data.isimip.org/api/v1',
-        files_api_url='https://files.isimip.org/api/v2',
-        files_api_version='v2'
+        data_url=os.getenv('ISIMIP_DATA_URL', 'https://data.isimip.org/api/v1'),
+        files_api_url=os.getenv('ISIMIP_FILES_API_URL', 'https://files.isimip.org/api/v2'),
+        files_api_version=os.getenv('ISIMIP_FILES_API_VERSION', 'v2'),
     )
 
 

@@ -24,7 +24,8 @@ class HTTPClient:
                 logger.error(f'{e} response={response.json()}')
             except json.decoder.JSONDecodeError as e:
                 logger.error(f'{e} content={response.content}')
-            return None
+        except json.decoder.JSONDecodeError as e:
+            logger.error(f'{e} content={response.content}')
 
     def get(self, url, params={}):
         logger.info(f'GET url={url} params={params}')
