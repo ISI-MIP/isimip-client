@@ -1,3 +1,7 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools", "setuptools_scm"]
+
 [project]
 name = "isimip-client"
 authors = [
@@ -11,12 +15,15 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = { file = "LICENSE" }
 classifiers = [
-    'Operating System :: OS Independent',
-    'License :: OSI Approved :: MIT License',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.10',
-    'Programming Language :: Python :: 3.11',
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "click>=8",
@@ -38,7 +45,6 @@ dev = [
     "build",
     "pre-commit",
     "ruff",
-    "twine",
 ]
 
 [project.urls]
@@ -50,8 +56,8 @@ isimip-client = "isimip_client.cli:main"
 [tool.setuptools]
 packages = ["isimip_client"]
 
-[tool.setuptools.dynamic]
-version = { attr = "isimip_client.__version__" }
+[tool.setuptools_scm]
+version_scheme = "release-branch-semver"
 
 [tool.ruff]
 target-version = "py38"
@@ -69,9 +75,6 @@ select = [
     "YTT",  # flake8-2020
 ]
 ignore = [
-    "B006",   # mutable-argument-default
-    "B007",   # unused-loop-control-variable
-    "B018",   # useless-expression
     "RUF012", # mutable-class-default
 ]
 
