@@ -27,7 +27,8 @@ class HTTPClient:
         except json.decoder.JSONDecodeError as e:
             logger.error(f'{e} content={response.content}')
 
-    def get(self, url, params={}):
+    def get(self, url, params=None):
+        params = params or {}
         logger.info(f'GET url={url} params={params}')
         response = requests.get(url, params=params, auth=self.auth, headers=self.headers)
         return self.parse_response(response)
@@ -58,11 +59,9 @@ class RESTClient(HTTPClient):
     max_results = 1000
     page_size = 100
 
-    def __init__(self, base_url, params, *args, **kwargs):
+    def __init__(self, base_url, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_url = base_url
-        self.params = {'page_size': self.page_size}
-        self.params.update(params)
 
     def build_url(self, resource_url, kwargs, pk=None):
         url = self.base_url.rstrip('/') + resource_url.rstrip('/') + '/'
@@ -84,7 +83,7 @@ class RESTClient(HTTPClient):
     def list(self, resource_url, **kwargs):
         paginate = kwargs.pop('paginate', False)
         url = self.build_url(resource_url, kwargs)
-        response = self.get(url, params=dict(self.params, **kwargs))
+        response = self.get(url, params=kwargs)
 
         if paginate:
             return response
@@ -443,10 +442,9 @@ class ISIMIPClient(DataApiMixin, FilesApiMixin, FilesApiV1Mixin, FilesApiV2Mixin
         data_url='https://data.isimip.org/api/v1',
         files_api_url='https://files.isimip.org/api/v2',
         files_api_version='v2',
-        params={},
         auth=None,
-        headers={}
+        headers=None
     ):
-        super().__init__(data_url, params, auth, headers)
+        super().__init__(data_url, auth, headers)
         self.files_api_url = files_api_url
         self.files_api_version = files_api_version
