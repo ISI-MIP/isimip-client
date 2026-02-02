@@ -1,4 +1,4 @@
-name: ci
+name: CI
 
 on:
   push:
@@ -13,7 +13,6 @@ on:
 jobs:
   build:
     name: Build distribution 👷
-    needs: pytest
     runs-on: ubuntu-latest
 
     steps:
