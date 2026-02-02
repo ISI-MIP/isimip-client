@@ -46,7 +46,7 @@ jobs:
 
     environment:
       name: pypi
-      url: https://pypi.org/p/django-datacite
+      url: https://pypi.org/p/isimip-client
 
     permissions:
       id-token: write
