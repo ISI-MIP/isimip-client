@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class HTTPClient:
 
     def __init__(self, auth, headers):
-        self.auth, self.headers = auth, headers
+        self.auth, self.headers = auth, headers or {}
 
     def parse_response(self, response):
         try:
