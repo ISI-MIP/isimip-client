@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+
+title: ISIMIP client
+authors:
+- family-names: Klar
+  given-names: Jochen
+  orcid: https://orcid.org/0000-0002-5883-4273
+license: MIT
+repository-code: https://github.com/ISI-MIP/isimip-client
