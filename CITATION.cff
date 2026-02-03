@@ -1,10 +1,18 @@
 cff-version: 1.2.0
-message: If you use this software, please cite it as below.
+message: >
+  When using this software in a publication, please cite it using the following DOI:
+  <https://doi.org/10.5281/zenodo.18460227>.
 
 title: ISIMIP client
+abstract: >
+  [isimip-client](https://github.com/ISI-MIP/isimip-client) is a *thin* Python client
+  library for accessing the API of the [ISIMIP repository](https://data.isimip.org).
 authors:
 - family-names: Klar
   given-names: Jochen
   orcid: https://orcid.org/0000-0002-5883-4273
+identifiers:
+- type: doi
+  value: 10.5281/zenodo.18460227
 license: MIT
 repository-code: https://github.com/ISI-MIP/isimip-client
