@@ -3,7 +3,7 @@ isimip-client
 
 [![Latest release](https://img.shields.io/pypi/v/isimip-client.svg?style=flat)](https://pypi.python.org/pypi/isimip-client/)
 [![Python Version](https://img.shields.io/badge/python->=3.8-blue)](https://www.python.org/)
-[![License](https://img.shields.io/github/license/ISI-MIP/isimip-client?style=flat)](https://github.com/rdmorganiser/isimip-client/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/ISI-MIP/isimip-client?style=flat)](https://github.com/ISI-MIP/isimip-client/blob/main/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18460227.svg)](https://doi.org/10.5281/zenodo.18460227)
 
 A *thin* client library to use the API of the [ISIMIP repository](https://data.isimip.org) using Python.
