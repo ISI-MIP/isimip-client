@@ -1,4 +1,7 @@
 cff-version: 1.2.0
+message: >
+  If you use this software in your research, please cite it using the provided
+  Digital Object Identifier (DOI).
 
 title: ISIMIP client
 abstract: A thin client library to use the API of the ISIMIP repository using Python.
