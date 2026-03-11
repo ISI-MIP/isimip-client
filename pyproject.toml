@@ -1,6 +1,6 @@
 [build-system]
-build-backend = "setuptools.build_meta"
-requires = ["setuptools", "setuptools_scm"]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [project]
 name = "isimip-client"
@@ -13,10 +13,10 @@ maintainers = [
 description = "A thin client library to use the API of the ISIMIP repository using Python."
 readme = "README.md"
 requires-python = ">=3.8"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
     "Operating System :: OS Independent",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -53,15 +53,17 @@ Repository = "https://github.com/ISI-MIP/isimip-client"
 [project.scripts]
 isimip-client = "isimip_client.cli:main"
 
-[tool.setuptools]
-packages = ["isimip_client"]
+[tool.hatch.version]
+source = "vcs"
 
-[tool.setuptools_scm]
-version_scheme = "release-branch-semver"
+[tool.hatch.build.targets.wheel]
+packages = ["isimip_client"]
 
 [tool.ruff]
 target-version = "py38"
 line-length = 120
+
+[tool.ruff.lint]
 select = [
     "B",    # flake8-bugbear
     "C4",   # flake8-comprehensions
@@ -78,7 +80,7 @@ ignore = [
     "RUF012", # mutable-class-default
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = [
     "isimip_client"
 ]
@@ -91,5 +93,5 @@ section-order = [
     "local-folder"
 ]
 
-[tool.ruff.isort.sections]
+[tool.ruff.lint.isort.sections]
 isimip_utils = ["isimip_utils"]
