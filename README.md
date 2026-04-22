@@ -5,13 +5,14 @@ isimip-client
 [![Python Version](https://img.shields.io/badge/python->=3.8-blue)](https://www.python.org/)
 [![License](https://img.shields.io/github/license/ISI-MIP/isimip-client?style=flat)](https://github.com/ISI-MIP/isimip-client/blob/main/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18460227.svg)](https://doi.org/10.5281/zenodo.18460227)
+[![DOI](https://img.shields.io/badge/DOI-10.5281/zenodo.18460227-blue)](https://doi.org/10.5281/zenodo.18460227)
 
 A *thin* client library to use the API of the [ISIMIP repository](https://data.isimip.org) using Python.
 
 Setup
 -----
 
-The library is written in Python (> 3.8) uses only dependencies, which can be installed without administrator priviledges. The installation of Python (and its developing packages), however differs from operating system to operating system. The installation of Python 3 for different plattforms is documented [here](https://github.com/ISI-MIP/isimip-utils/blob/master/docs/prerequisites.md).
+The library is written in Python (> 3.8) uses only dependencies, which can be installed without administrator privileges. The installation of Python (and its developing packages), however differs from operating system to operating system. The installation of Python 3 for different platforms is documented [here](https://github.com/ISI-MIP/isimip-utils/blob/master/docs/prerequisites.md).
 
 The library can be installed via pip. Usually you want to create a [virtual environment](https://docs.python.org/3/library/venv.html) first, but this is optional:
 
@@ -42,7 +43,7 @@ from isimip_client.client import ISIMIPClient
 client = ISIMIPClient()
 ```
 
-The methods of this `client` object can then be used to perform queries to the ISIMIP Repository, e.g. to seach for datasets
+The methods of this `client` object can then be used to perform queries to the ISIMIP Repository, e.g. to search for datasets
 
 ```python
 # search the ISIMIP repository using a search string
@@ -80,7 +81,7 @@ Similar searches can be performed on the `files` endpoint, e.g.:
 response = client.files(...)
 ```
 
-The ISIMIP Repository proviedes a "Configure download" feature, which can be used to perform operations on a set of files before downloading them. A common use case it the cut-out of a specific region. Technical details about this Files API can be found [here](https://github.com/ISI-MIP/isimip-files-api). The client can be used to perform the same operations which are available on the webpage:
+The ISIMIP Repository provides a "Configure download" feature, which can be used to perform operations on a set of files before downloading them. A common use case it the cut-out of a specific region. Technical details about this Files API can be found [here](https://github.com/ISI-MIP/isimip-files-api). The client can be used to perform the same operations which are available on the webpage:
 
 ```python
 response = client.select_bbox(paths, west, east, south, north, poll=poll)
@@ -146,7 +147,7 @@ operations = [
 # list of uploaded files, referenced in the operations list
 uploads = [ne_shape]
 
-# sumbit the prepared job to the API and poll every 4 seconds for it's status
+# submit the prepared job to the API and poll every 4 seconds for it's status
 response = client.submit_job(paths, operations, uploads, poll=4)
 ```
 
@@ -196,7 +197,7 @@ isimip-client cutout_bbox   [PATHS]... --west=-20 --east=20 --south=-10 --north=
 isimip-client cutout_point  [PATHS]... --lat=6.25 --lon=18.17
 ```
 
-where `[PATHS]...` denotes the list of ISIMIP file path to process, seperated by spaces.
+where `[PATHS]...` denotes the list of ISIMIP file path to process, separated by spaces.
 
 
 Jupyter notebooks
